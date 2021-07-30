@@ -1,0 +1,100 @@
+﻿@page "/"
+
+@inject IWeatherService WeatherService
+
+<h1>Weather forecast</h1>
+
+@if (currentWeather == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <section class="vh-100">
+        <div class="container py-5 h-100">
+
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-md-8 col-lg-6 col-xl-4">
+
+                    <h3 class="mb-4 pb-2 fw-normal">Check the weather forecast</h3>
+                    <EditForm Model=@searchQuery OnValidSubmit="OnCityQuery">
+                        <DataAnnotationsValidator />
+                        <div class="input-group rounded mb-3">
+                            <input type="search" class="form-control rounded" placeholder="City" aria-label="Search"
+                                   aria-describedby="search-addon" @bind-value="@searchQuery.CityInput" />
+                            <input type="submit" class="btn btn-primary" value="Search" />
+                        </div>
+                        <ValidationMessage For="() => searchQuery.CityInput" />
+                    </EditForm>
+
+                    <div class="card shadow-0 border">
+                        <div class="card-body p-4">
+
+                            <h4 class="mb-1 sfw-normal">@GetFormattedLocation()</h4>
+                            <p class="mb-2">Current temperature: <strong>@currentWeather.CurrentTemperature°C</strong></p>
+                            <p>Feels like: <strong>@currentWeather.CurrentFeelsLike°C</strong></p>
+                            <p>Wind: <strong>@currentWeather.WindSpeedKph</strong></p>
+                            <p>Wind direction: <strong>@currentWeather.WindDirection</strong></p>
+
+                            <div class="d-flex flex-row align-items-center">
+                                <p class="mb-0 me-4">@currentWeather.Condition</p>
+                                <img src="@currentWeather.ConditionIcon" width="100">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    private CurrentWeather currentWeather;
+
+    private SearchQuery searchQuery = new SearchQuery();
+
+    [CascadingParameter(Name = "ErrorComponent")]
+    private IErrorComponent ErrorComponent { get; set; }
+
+    private static bool firstRender = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (firstRender)
+        {
+            firstRender = !firstRender;
+        }
+        else
+        {
+            try
+            {
+                currentWeather = await WeatherService.GetCurrentWeather();
+            }
+            catch (Exception ex)
+            {
+                ErrorComponent.ShowError("Something wrong has happened", ex.Message);
+            }
+        }
+    }
+
+    private string GetFormattedLocation()
+    {
+        return string.Join(", ", currentWeather.Location.Name, currentWeather.Location.Country, currentWeather.Location.Region);
+    }
+
+    private async Task OnCityQuery()
+    {
+        if (!string.IsNullOrWhiteSpace(searchQuery.CityInput))
+        {
+            try
+            {
+                currentWeather = await WeatherService.GetCurrentWeather(searchQuery.CityInput);
+            }
+            catch (Exception ex)
+            {
+                ErrorComponent.ShowError("Something wrong has happened", ex.Message);
+            }
+        }
+    }
+}
