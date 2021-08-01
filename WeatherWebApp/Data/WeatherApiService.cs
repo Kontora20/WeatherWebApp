@@ -5,15 +5,21 @@ using WeatherWebApp.Data;
 using System.Net.Http.Json;
 using WeatherWebApp.Data.Dto;
 using static WeatherWebApp.Helpers.UriExtensions;
+using Microsoft.Extensions.Configuration;
 
 namespace WeatherWebApp.Services
 {
     public class WeatherApiService : IWeatherService
     {
-
+        private readonly string apiKey;
         private readonly string baseUrl = "http://api.weatherapi.com/v1/";
-        private readonly string apiKey = "6333bba7b27b40419ab53207213007";
         private readonly string defaultCityForWeather = "Kaunas";
+
+        public WeatherApiService(IConfiguration configuration)
+        {
+            // I wonder if it would be better to deploy key to Azure and call Environment.GetEnvironmentVariable instead
+            apiKey = configuration["WeatherApiKey"];
+        }
 
         private async Task<WeatherApiForecast> GetCurrentWeatherApiForecast(string city)
         {
