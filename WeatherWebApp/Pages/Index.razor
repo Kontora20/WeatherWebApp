@@ -31,10 +31,11 @@ else
                         <div class="card-body p-4">
 
                             <h4 class="mb-1 sfw-normal">@GetFormattedLocation()</h4>
-                            <p class="mb-2">Current temperature: <strong>@currentWeather.CurrentTemperature°C</strong></p>
-                            <p>Feels like: <strong>@currentWeather.CurrentFeelsLike°C</strong></p>
-                            <p>Wind: <strong>@currentWeather.WindSpeedKph</strong></p>
+                            <p class="mb-2">Current temperature: <strong>@GetFormattedTemperature(currentWeather.CurrentTemperature)</strong></p>
+                            <p>Feels like: <strong>@GetFormattedTemperature(currentWeather.CurrentFeelsLike)</strong></p>
+                            <p>Wind: <strong>@GetFormattedWind()</strong></p>
                             <p>Wind direction: <strong>@currentWeather.WindDirection</strong></p>
+                            <p>Last update: <strong>@GetLastUpdatedTime()</strong></p>
 
                             <div class="d-flex flex-row align-items-center">
                                 <p class="mb-0 me-4">@currentWeather.Condition</p>
@@ -81,6 +82,21 @@ else
     private string GetFormattedLocation()
     {
         return string.Join(", ", currentWeather.Location.Name, currentWeather.Location.Country, currentWeather.Location.Region);
+    }
+
+    private string GetLastUpdatedTime()
+    {
+        return string.Format("{0}:{1}", currentWeather.LastUpdated.Hour, currentWeather.LastUpdated.Minute);
+    }
+
+    private string GetFormattedTemperature(decimal temp)
+    {
+        return string.Format("{0}°C", temp);
+    }
+
+    private string GetFormattedWind()
+    {
+        return string.Format("{0} km/h", currentWeather.WindSpeedKph);
     }
 
     private async Task OnCityQuery()
