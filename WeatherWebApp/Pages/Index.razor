@@ -86,7 +86,7 @@ else
 
     private string GetLastUpdatedTime()
     {
-        return string.Format("{0}:{1}", currentWeather.LastUpdated.Hour, currentWeather.LastUpdated.Minute);
+        return currentWeather.LastUpdated.ToString("t");
     }
 
     private string GetFormattedTemperature(decimal temp)
